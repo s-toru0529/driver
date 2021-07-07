@@ -1,3 +1,10 @@
+// CORS対策でプロキシ設定
 module.exports = {
-  publicPath: '/vue'
-}
+    devServer: {
+        proxy: {
+            "/": {
+                target: "http://localhost:8080",
+            }
+        }
+    }
+};
