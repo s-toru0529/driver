@@ -1,15 +1,30 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <v-app>
+    <Sidenav />
+    <Header />
+    <v-main>
+      <router-view />
+    </v-main>
+    <Footer />
+  </v-app>
 </template>
+
+<script>
+import Sidenav from "./components/Sidenav";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+
+export default {
+  name: "app",
+  components: { Sidenav, Header, Footer },
+};
+</script>
 
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 

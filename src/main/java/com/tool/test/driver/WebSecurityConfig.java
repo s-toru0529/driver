@@ -1,8 +1,6 @@
 package com.tool.test.driver;
 
-import com.tool.test.driver.domain.component.JWT.JWTAuthenticationFailureHandler;
 import com.tool.test.driver.domain.component.JWT.JWTAuthenticationFilter;
-import com.tool.test.driver.domain.component.JWT.JWTAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -22,31 +23,34 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   // ログイン以降の認証認可のためのFilter
   private final JWTAuthenticationFilter filter;
 
-  // ログインが成功した場合の処理のためのHandler
-  private final JWTAuthenticationSuccessHandler successHandler;
-
-  // ログインが失敗した場合の処理のためのHandler
-  private final JWTAuthenticationFailureHandler failureHandler;
-
   @Bean
   PasswordEncoder passwordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
 
   @Autowired
-  public WebSecurityConfig(
-      JWTAuthenticationFilter filter,
-      JWTAuthenticationSuccessHandler successHandler,
-      JWTAuthenticationFailureHandler failureHandler) {
+  public WebSecurityConfig(JWTAuthenticationFilter filter) {
     this.filter = filter;
-    this.successHandler = successHandler;
-    this.failureHandler = failureHandler;
   }
 
   @Bean
   @Override
   public AuthenticationManager authenticationManagerBean() throws Exception {
     return super.authenticationManagerBean();
+  }
+
+  private CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration corsConfiguration = new CorsConfiguration();
+    corsConfiguration.addAllowedMethod(CorsConfiguration.ALL);
+    corsConfiguration.addAllowedHeader(CorsConfiguration.ALL);
+    corsConfiguration.addExposedHeader("Authorization");
+    corsConfiguration.addAllowedOrigin("http://localhost");
+    corsConfiguration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource corsSource = new UrlBasedCorsConfigurationSource();
+    corsSource.registerCorsConfiguration("/**", corsConfiguration);
+
+    return corsSource;
   }
 
   @Override
@@ -64,25 +68,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         // formLogin設定
         .formLogin()
-        // signinは誰でもアクセス可能
-        .loginProcessingUrl("/signin")
-        .permitAll()
-        // formからパラメータ取得
-        .usernameParameter("username")
-        .passwordParameter("password")
-        // ログイン成功した場合
-        .successHandler(successHandler)
-        .failureHandler(failureHandler)
-        .and()
+        .disable()
         // USERではないとどのURLでもアクセスできない
         .authorizeRequests()
-        .antMatchers("/signup", "/h2-console/**")
+        .antMatchers(
+            "/",
+            "/login",
+            "/signup",
+            "/h2-console/**",
+            "/css/**",
+            "/js/**",
+            "/favicon.ico",
+            "/index.html")
         .permitAll() // H2DBデバッグ用
         .anyRequest()
         .hasRole("USER")
-        .and()
-        // デフォルトのFilter設定を変える
+        .and() // デフォルトのFilter設定を変える
         .addFilterBefore(this.filter, UsernamePasswordAuthenticationFilter.class);
     http.headers().frameOptions().disable();
+    // CORS対策
+    http.cors().configurationSource(this.corsConfigurationSource());
   }
 }

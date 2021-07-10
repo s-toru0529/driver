@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --port 8081",
-    "build": "vue-cli-service build --dest ../../src/main/resources/static/vue",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build --dest ../../src/main/resources/static/",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@mdi/font": "^5.9.55",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",

@@ -9,7 +9,7 @@
           <v-text-field
             prepend-icon="mdi-account-circle"
             label="ユーザ名"
-            v-model="user.userId"
+            v-model="user.username"
           />
           <v-text-field
             v-bind:type="showPassword ? 'text' : 'password'"
@@ -36,12 +36,16 @@ export default {
   },
   methods: {
     doLogin() {
-      this.axios.post("/signin", this.user).then((response) => {
+      const params = new FormData();
+      params.append("username", this.user.username);
+      params.append("password", this.user.password);
+
+      this.$axios.post("/login", this.user).then((response) => {
         this.$store.dispatch("auth", {
-          userId: response.data.userId,
-          userToken: response.data.token,
+          userName: this.user.userName,
+          userToken: response.data.headers.authorization,
         });
-        this.$router.push(this.$route.query.redirect);
+        this.$router.push("/");
       });
     },
   },

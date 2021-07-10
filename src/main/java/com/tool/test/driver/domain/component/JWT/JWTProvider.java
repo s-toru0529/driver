@@ -56,7 +56,11 @@ public class JWTProvider {
 
   // リクエストのHeaderからトークンを取得する
   public String resolveToken(final HttpServletRequest request) {
-    return request.getHeader("X-AUTH-TOKEN");
+    String token = ((HttpServletRequest) request).getHeader("Authorization");
+    if (token == null || !token.startsWith("Bearer ")) {
+      return null;
+    }
+    return token.substring(7);
   }
 
   // トークンの有効期間を検証する

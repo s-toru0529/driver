@@ -15,12 +15,11 @@ public class SignupService {
   // UserDetailsを取得できるRepository
   private final UserRepository repository;
 
-  private final PasswordEncoder passwordEncoder;
+  @Autowired PasswordEncoder passwordEncoder;
 
   @Autowired
-  public SignupService(UserRepository repository, PasswordEncoder passwordEncoder) {
+  public SignupService(UserRepository repository) {
     this.repository = repository;
-    this.passwordEncoder = passwordEncoder;
   }
 
   @Transactional
